@@ -6,7 +6,7 @@ set(CMAKE_DEBUG_POSTFIX "")
 
 function(CompileExample name)
     add_executable(${name}  ${name}.cpp )
-    target_link_libraries(${name} ${BEHAVIOR_TREE_LIBRARY}  bt_sample_nodes )
+    target_link_libraries(${name} ${BTCPP_LIBRARY}  bt_sample_nodes )
 endfunction()
 
 CompileExample("t01_build_your_first_tree")
@@ -20,10 +20,7 @@ CompileExample("t08_additional_node_args")
 CompileExample("t09_scripting")
 CompileExample("t10_observer")
 CompileExample("t11_replace_rules")
-
-if( ZMQ_FOUND )
-    CompileExample("t12_groot_howto")
-endif()
+CompileExample("t12_groot_howto")
 
 CompileExample("ex01_wrap_legacy")
 CompileExample("ex02_runtime_ports")
