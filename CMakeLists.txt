@@ -157,7 +157,8 @@ target_include_directories(${BTCPP_LIBRARY}
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdparty>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lexy/include>
-    )
+        ${BTCPP_EXTRA_INCLUDES}
+        )
 
 target_compile_definitions(${BTCPP_LIBRARY} PRIVATE $<$<CONFIG:Debug>:TINYXML2_DEBUG>)
 
