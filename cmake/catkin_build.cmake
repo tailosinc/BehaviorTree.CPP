@@ -29,3 +29,7 @@ mark_as_advanced(
     BTCPP_LIB_DESTINATION
     BTCPP_INCLUDE_DESTINATION
     BTCPP_BIN_DESTINATION )
+
+macro(export_btcpp_package)
+ # do nothing
+endmacro()

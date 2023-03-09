@@ -7,6 +7,15 @@ set(BTCPP_LIBRARY ${PROJECT_NAME})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE "Release" CACHE
+      STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DWIN32_LEAN_AND_MEAN)
 else()
@@ -167,27 +176,20 @@ message( STATUS "BTCPP_LIB_DESTINATION:   ${BTCPP_LIB_DESTINATION} " )
 message( STATUS "BTCPP_INCLUDE_DESTINATION: ${BTCPP_INCLUDE_DESTINATION} " )
 message( STATUS "BTCPP_UNIT_TESTS:   ${BTCPP_UNIT_TESTS} " )
 
-if(ament_cmake_FOUND)
-    find_package(ament_index_cpp REQUIRED)
-    target_include_directories(${BTCPP_LIBRARY} PRIVATE
-        $<BUILD_INTERFACE:${ament_index_cpp_INCLUDE_DIRS}> )
-
-    target_link_libraries(${BTCPP_LIBRARY} PRIVATE
-        $<BUILD_INTERFACE:ament_index_cpp::ament_index_cpp> )
-
-    ament_export_dependencies(ament_index_cpp)
-
-    ament_export_include_directories(include)
-    ament_export_libraries(${BTCPP_LIBRARY})
-    ament_package()
-endif()
-
 add_subdirectory(sample_nodes)
 
 ######################################################
-# Test
+
 if (BTCPP_UNIT_TESTS)
     add_subdirectory(tests)
+endif()
+
+if(BTCPP_BUILD_TOOLS)
+    add_subdirectory(tools)
+endif()
+
+if(BTCPP_EXAMPLES)
+    add_subdirectory(examples)
 endif()
 
 ######################################################
@@ -205,35 +207,6 @@ INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
     DESTINATION ${BTCPP_INCLUDE_DESTINATION}
     FILES_MATCHING PATTERN "*.h*")
 
-install(EXPORT ${PROJECT_NAME}Targets
-    FILE "${PROJECT_NAME}Targets.cmake"
-    DESTINATION "${BTCPP_LIB_DESTINATION}/cmake/${PROJECT_NAME}"
-    NAMESPACE BT::
-    )
+export_btcpp_package()
 
-export(PACKAGE ${PROJECT_NAME})
 
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-  INSTALL_DESTINATION "${BTCPP_LIB_DESTINATION}/cmake/${PROJECT_NAME}"
-)
-
-install(
-  FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-    #    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-    DESTINATION "${BTCPP_LIB_DESTINATION}/cmake/${PROJECT_NAME}"
-)
-
-######################################################
-# EXAMPLES and TOOLS
-if(BTCPP_BUILD_TOOLS)
-    add_subdirectory(tools)
-endif()
-
-if(BTCPP_EXAMPLES)
-    add_subdirectory(examples)
-endif()

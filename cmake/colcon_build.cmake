@@ -27,3 +27,9 @@ mark_as_advanced(
     BTCPP_LIB_DESTINATION
     BTCPP_INCLUDE_DESTINATION
     BTCPP_BIN_DESTINATION )
+
+macro(export_btcpp_package)
+    ament_export_include_directories(include)
+    ament_export_libraries(${BTCPP_LIBRARY})
+    ament_package()
+endmacro()
