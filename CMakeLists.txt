@@ -6,7 +6,6 @@ set(BTCPP_LIBRARY ${PROJECT_NAME})
 #---- Enable C++17 ----
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DWIN32_LEAN_AND_MEAN)
@@ -37,6 +36,7 @@ if(POLICY CMP0057)
 endif()
 
 find_package(ament_cmake QUIET)
+
 if ( ament_cmake_FOUND )
     set(COMPILING_WITH_AMENT true)
     add_definitions( -DUSING_ROS2 )
@@ -167,6 +167,21 @@ message( STATUS "BTCPP_LIB_DESTINATION:   ${BTCPP_LIB_DESTINATION} " )
 message( STATUS "BTCPP_INCLUDE_DESTINATION: ${BTCPP_INCLUDE_DESTINATION} " )
 message( STATUS "BTCPP_UNIT_TESTS:   ${BTCPP_UNIT_TESTS} " )
 
+if(ament_cmake_FOUND)
+    find_package(ament_index_cpp REQUIRED)
+    target_include_directories(${BTCPP_LIBRARY} PRIVATE
+        $<BUILD_INTERFACE:${ament_index_cpp_INCLUDE_DIRS}> )
+
+    target_link_libraries(${BTCPP_LIBRARY} PRIVATE
+        $<BUILD_INTERFACE:ament_index_cpp::ament_index_cpp> )
+
+    ament_export_dependencies(ament_index_cpp)
+
+    ament_export_include_directories(include)
+    ament_export_libraries(${BTCPP_LIBRARY})
+    ament_package()
+endif()
+
 add_subdirectory(sample_nodes)
 
 ######################################################
@@ -178,8 +193,6 @@ endif()
 ######################################################
 # INSTALL
 
-ament_export_targets(${PROJECT_NAME}Targets HAS_LIBRARY_TARGET)
-
 INSTALL(TARGETS ${BTCPP_LIBRARY}
     EXPORT ${PROJECT_NAME}Targets
     ARCHIVE DESTINATION ${BTCPP_LIB_DESTINATION}
@@ -188,49 +201,39 @@ INSTALL(TARGETS ${BTCPP_LIBRARY}
     INCLUDES DESTINATION ${BTCPP_INCLUDE_DESTINATION}
     )
 
-INSTALL( DIRECTORY include
-    DESTINATION ${BTCPP_INCLUDE_DESTINATION} )
+INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    DESTINATION ${BTCPP_INCLUDE_DESTINATION}
+    FILES_MATCHING PATTERN "*.h*")
 
-ament_export_include_directories(include)
-ament_export_libraries(${BTCPP_LIBRARY})
-ament_package()
+install(EXPORT ${PROJECT_NAME}Targets
+    FILE "${PROJECT_NAME}Targets.cmake"
+    DESTINATION "${BTCPP_LIB_DESTINATION}/cmake/${PROJECT_NAME}"
+    NAMESPACE BT::
+    )
 
-#install(EXPORT ${PROJECT_NAME}Targets
-#    FILE "${PROJECT_NAME}Targets.cmake"
-#    DESTINATION "${BTCPP_LIB_DESTINATION}/cmake/${PROJECT_NAME}"
-#    NAMESPACE BT::
-#    )
+export(PACKAGE ${PROJECT_NAME})
 
-#export(PACKAGE ${PROJECT_NAME})
+include(CMakePackageConfigHelpers)
 
-#if(NOT COMPILING_WITH_AMENT)
-#    include(CMakePackageConfigHelpers)
-#    configure_package_config_file(
-#      "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in"
-#      "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-#      INSTALL_DESTINATION "${BTCPP_LIB_DESTINATION}/cmake/${PROJECT_NAME}"
-#    )
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  INSTALL_DESTINATION "${BTCPP_LIB_DESTINATION}/cmake/${PROJECT_NAME}"
+)
 
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    #    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    DESTINATION "${BTCPP_LIB_DESTINATION}/cmake/${PROJECT_NAME}"
+)
 
-#    install(
-#      FILES
-#        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-#        #    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-#        DESTINATION "${BTCPP_LIB_DESTINATION}/cmake/${PROJECT_NAME}"
-#    )
-#endif()
-#######################################################
-## EXAMPLES and TOOLS
-#if(BTCPP_BUILD_TOOLS)
-#    add_subdirectory(tools)
-#endif()
+######################################################
+# EXAMPLES and TOOLS
+if(BTCPP_BUILD_TOOLS)
+    add_subdirectory(tools)
+endif()
 
-#if(BTCPP_EXAMPLES)
-#    add_subdirectory(examples)
-#endif()
-
-#if(COMPILING_WITH_AMENT)
-#    ament_export_include_directories(include)
-#    ament_export_libraries(${BTCPP_LIBRARY})
-#    ament_package()
-#endif()
+if(BTCPP_EXAMPLES)
+    add_subdirectory(examples)
+endif()
