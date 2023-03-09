@@ -24,7 +24,8 @@ int main(int argc, char* argv[])
     const size_t length = static_cast<size_t>(ftell(file));
     fseek(file, 0L, SEEK_SET);
     std::vector<char> buffer(length);
-    fread(buffer.data(), sizeof(char), length, file);
+    auto res = fread(buffer.data(), sizeof(char), length, file);
+    (void)res;
     fclose(file);
 
     const auto bt_header_size = flatbuffers::ReadScalar<uint32_t>(&buffer[0]);
@@ -41,7 +42,7 @@ int main(int argc, char* argv[])
         node_by_uid.insert({node->uid(), node});
         max_uid = std::max(max_uid, node->uid());
     }
-    uint16_t digits_max_uid = std::to_string(max_uid).size();
+    uint16_t digits_max_uid = uint16_t(std::to_string(max_uid).size());
 
     printf("----------------------------\n");
 

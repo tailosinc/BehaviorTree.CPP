@@ -1,12 +1,12 @@
-cmake_minimum_required(VERSION 3.5.1)
-
-include_directories( ../sample_nodes )
 
 set(CMAKE_DEBUG_POSTFIX "")
 
 function(CompileExample name)
     add_executable(${name}  ${name}.cpp )
     target_link_libraries(${name} ${BTCPP_LIBRARY}  bt_sample_nodes )
+    target_include_directories(${name} PRIVATE
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/sample_nodes>
+    )
 endfunction()
 
 CompileExample("t01_build_your_first_tree")

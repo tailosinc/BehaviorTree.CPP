@@ -1,5 +1,5 @@
-#include <gtest/gtest.h>
 #include "behaviortree_cpp/json_export.h"
+#include <gtest/gtest.h>
 
 //----------- Custom types ----------
 

@@ -3,21 +3,16 @@ project(behaviortree_cpp)
 
 set(BTCPP_LIBRARY ${PROJECT_NAME})
 
-#---- Add the subdirectory cmake ----
-set(CMAKE_CONFIG_PATH ${CMAKE_MODULE_PATH}  "${CMAKE_CURRENT_LIST_DIR}/cmake")
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CONFIG_PATH}")
-
 #---- Enable C++17 ----
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DWIN32_LEAN_AND_MEAN)
 else()
     add_definitions(-Wpedantic)
 endif()
-
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #---- project configuration ----
 option(BTCPP_SHARED_LIBS "Build shared libraries" ON)
@@ -31,9 +26,6 @@ option(USE_V3_COMPATIBLE_NAMES  "Use some alias to compile more easily old 3.x c
 if(USE_V3_COMPATIBLE_NAMES)
     add_definitions(-DUSE_BTCPP3_OLD_NAMES)
 endif()
-
-#---- Find other packages ----
-find_package(Threads REQUIRED)
 
 
 # Update the policy setting to avoid an error when loading the ament_cmake package
@@ -111,19 +103,11 @@ list(APPEND BT_SOURCE
     src/loggers/bt_observer.cpp
     src/loggers/groot2_publisher.cpp
 
+    src/controls/manual_node.cpp
+
     3rdparty/tinyxml2/tinyxml2.cpp
     3rdparty/minitrace/minitrace.cpp
     )
-
-if(BTCPP_MANUAL_SELECTOR)
-    find_package(Curses QUIET)
-    if(CURSES_FOUND)
-        message(STATUS "NCurses: found.")
-        list(APPEND BT_SOURCE src/controls/manual_node.cpp )
-    else()
-        message(WARNING "NCurses NOT found. Skipping the build of manual selector node.")
-    endif()
-endif()
 
 
 ######################################################
@@ -144,11 +128,13 @@ else()
     add_library(${BTCPP_LIBRARY} STATIC ${BT_SOURCE})
 endif()
 
+message(STATUS "BTCPP_EXTRA_LIBRARIES: ${BTCPP_EXTRA_LIBRARIES}")
+
 target_link_libraries(${BTCPP_LIBRARY}
     PRIVATE
-        Threads::Threads
         ${CMAKE_DL_LIBS}
         $<BUILD_INTERFACE:foonathan::lexy>
+        ${BTCPP_EXTRA_LIBRARIES}
 )
 
 target_include_directories(${BTCPP_LIBRARY}
@@ -161,20 +147,11 @@ target_include_directories(${BTCPP_LIBRARY}
         $<BUILD_INTERFACE:${BTCPP_EXTRA_INCLUDE_DIRS}>
     )
 
-if(CURSES_FOUND)
-    target_link_libraries(${BTCPP_LIBRARY} PRIVATE
-        ${CURSES_LIBRARIES} )
-    target_include_directories(${BTCPP_LIBRARY} PRIVATE
-        ${CURSES_INCLUDE_DIRS} )
-    target_compile_definitions(${BTCPP_LIBRARY} PRIVATE NCURSES_FOUND)
-endif()
-
 target_compile_definitions(${BTCPP_LIBRARY} PRIVATE $<$<CONFIG:Debug>:TINYXML2_DEBUG>)
 
 if(MSVC)
 else()
-    target_compile_options(${BTCPP_LIBRARY} PRIVATE
-        -Wall -Wextra -Werror=return-type)
+    target_compile_options(${BTCPP_LIBRARY} PRIVATE -Wall -Wextra)
 endif()
 
 #############################################################

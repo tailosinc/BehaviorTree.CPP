@@ -8,7 +8,7 @@ install(TARGETS bt3_log_cat
         DESTINATION ${BEHAVIOR_TREE_BIN_DESTINATION} )
 
 add_executable(bt3_recorder         bt_recorder.cpp )
-target_link_libraries(bt3_recorder  ${BTCPP_LIBRARY} ${ZMQ_LIBRARIES})
+target_link_libraries(bt3_recorder  ${BTCPP_LIBRARY} ${ZeroMQ_LIBRARIES})
 install(TARGETS bt3_recorder
         DESTINATION ${BEHAVIOR_TREE_BIN_DESTINATION} )
 
