@@ -14,7 +14,7 @@ conan_basic_setup()
 set( BTCPP_EXTRA_LIBRARIES ${CONAN_LIBS})
 set( BTCPP_LIB_DESTINATION     lib )
 set( BTCPP_INCLUDE_DESTINATION include )
-set( BTCPP_BIN_DESTINATION bin )
+set( BTCPP_BIN_DESTINATION     bin )
 
 mark_as_advanced(
     BTCPP_EXTRA_LIBRARIES

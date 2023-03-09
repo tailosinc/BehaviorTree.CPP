@@ -9,6 +9,7 @@ class BehaviortreeCppRecipe(ConanFile):
         self.requires("ncurses/6.3")
         self.requires("gtest/1.12.1")
         self.requires("zeromq/4.3.4")
+        self.requires("sqlite3/3.40.1")
 
     def build_requirements(self):
         self.tool_requires("cmake/3.16.3")

@@ -57,7 +57,7 @@ else (ZeroMQ_LIBRARIES AND ZeroMQ_INCLUDE_DIRS)
   endif (ZeroMQ_LIBRARY)
 
   include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(ZMQ DEFAULT_MSG ZeroMQ_LIBRARIES ZeroMQ_INCLUDE_DIRS)
+  find_package_handle_standard_args(ZeroMQ DEFAULT_MSG ZeroMQ_LIBRARIES ZeroMQ_INCLUDE_DIRS)
 
   # show the ZeroMQ_INCLUDE_DIRS and ZeroMQ_LIBRARIES variables only in the advanced view
   mark_as_advanced(ZeroMQ_INCLUDE_DIRS ZeroMQ_LIBRARIES)
