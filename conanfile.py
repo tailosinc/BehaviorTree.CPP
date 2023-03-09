@@ -11,9 +11,6 @@ class BehaviortreeCppRecipe(ConanFile):
         self.requires("zeromq/4.3.4")
         self.requires("sqlite3/3.40.1")
 
-    def build_requirements(self):
-        self.tool_requires("cmake/3.16.3")
-
     def build(self):
         cmake = CMake(self)
         cmake.configure()
