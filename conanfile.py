@@ -6,7 +6,7 @@ class BehaviortreeCppRecipe(ConanFile):
     generators = "cmake_find_package", "cmake_paths", "cmake"
 
     def requirements(self):
-        self.requires("ncurses/6.3")
+#       self.requires("ncurses/6.3") #  broken on conan 2.0
         self.requires("gtest/1.12.1")
         self.requires("zeromq/4.3.4")
         self.requires("sqlite3/3.40.1")

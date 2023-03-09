@@ -10,6 +10,7 @@ conan_cmake_install(PATH_OR_REFERENCE ${PROJECT_SOURCE_DIR}/conanfile.py
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
+set(BTCPP_MANUAL_SELECTOR OFF)
 
 set( BTCPP_EXTRA_LIBRARIES ${CONAN_LIBS})
 set( BTCPP_LIB_DESTINATION     lib )
