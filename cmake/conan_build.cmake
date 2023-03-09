@@ -10,9 +10,22 @@ conan_cmake_install(PATH_OR_REFERENCE ${PROJECT_SOURCE_DIR}/conanfile.py
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
-set(BTCPP_MANUAL_SELECTOR OFF)
+# ncurses is broken on conan 2.0. Proceed to find it manually
 
-set( BTCPP_EXTRA_LIBRARIES ${CONAN_LIBS})
+if(BTCPP_MANUAL_SELECTOR)
+    find_package(Curses QUIET)
+    if(CURSES_FOUND)
+        message(STATUS "NCurses: found.")
+    else()
+        message(WARNING "NCurses NOT found. Skipping the build of manual selector node.")
+        set(BTCPP_MANUAL_SELECTOR OFF)
+        SET(USE_OPTION ON CACHE BOOL "Override option" FORCE)
+    endif()
+endif()
+
+set( BTCPP_EXTRA_LIBRARIES ${CONAN_LIBS} ${CURSES_LIBRARIES} )
+set(BTCPP_EXTRA_INCLUDES ${CURSES_INCLUDE_DIRS} )
+
 set( BTCPP_LIB_DESTINATION     lib )
 set( BTCPP_INCLUDE_DESTINATION include )
 set( BTCPP_BIN_DESTINATION     bin )
