@@ -245,8 +245,7 @@ void BehaviorTreeFactory::clearRegisteredBehaviorTrees()
 std::unique_ptr<TreeNode> BehaviorTreeFactory::instantiateTreeNode(
     const std::string& name, const std::string& ID, const NodeConfig& config) const
 {
-  auto idNotFound = [this, ID]
-  {
+  auto idNotFound = [this, ID] {
     std::cerr << ID << " not included in this list:" << std::endl;
     for (const auto& builder_it : builders_)
     {
@@ -261,17 +260,16 @@ std::unique_ptr<TreeNode> BehaviorTreeFactory::instantiateTreeNode(
     idNotFound();
   }
 
-
   std::unique_ptr<TreeNode> node;
 
   bool substituted = false;
-  for(const auto& [filter, rule]: substitution_rules_)
+  for (const auto& [filter, rule] : substitution_rules_)
   {
-    if( filter == name || filter == ID || wildcards::match(config.path, filter))
+    if (filter == name || filter == ID || wildcards::match(config.path, filter))
     {
       // first case: the rule is simply a string with the name of the
       // node to create instead
-      if(const auto substituted_ID = std::get_if<std::string>(&rule) )
+      if (const auto substituted_ID = std::get_if<std::string>(&rule))
       {
         auto it_builder = builders_.find(*substituted_ID);
         if (it_builder != builders_.end())
@@ -279,13 +277,14 @@ std::unique_ptr<TreeNode> BehaviorTreeFactory::instantiateTreeNode(
           auto& builder = it_builder->second;
           node = builder(name, config);
         }
-        else{
+        else
+        {
           throw RuntimeError("Substituted Node ID not found");
         }
         substituted = true;
         break;
       }
-      else if(const auto test_config = std::get_if<TestNodeConfig>(&rule) )
+      else if (const auto test_config = std::get_if<TestNodeConfig>(&rule))
       {
         // second case, the varian is a TestNodeConfig
         auto test_node = new TestNode(name, config);
@@ -299,7 +298,7 @@ std::unique_ptr<TreeNode> BehaviorTreeFactory::instantiateTreeNode(
   }
 
   // No substitution rule applied: default behavior
-  if(!substituted)
+  if (!substituted)
   {
     auto it_builder = builders_.find(ID);
     if (it_builder == builders_.end())
@@ -351,7 +350,8 @@ const std::set<std::string>& BehaviorTreeFactory::builtinNodes() const
 Tree BehaviorTreeFactory::createTreeFromText(const std::string& text,
                                              Blackboard::Ptr blackboard)
 {
-  if(!parser_->registeredBehaviorTrees().empty()) {
+  if (!parser_->registeredBehaviorTrees().empty())
+  {
     std::cout << "WARNING: You executed BehaviorTreeFactory::createTreeFromText "
                  "after registerBehaviorTreeFrom[File/Text].\n"
                  "This is NOTm probably, what you want to do.\n"
@@ -368,7 +368,8 @@ Tree BehaviorTreeFactory::createTreeFromText(const std::string& text,
 Tree BehaviorTreeFactory::createTreeFromFile(const std::string& file_path,
                                              Blackboard::Ptr blackboard)
 {
-  if(!parser_->registeredBehaviorTrees().empty()) {
+  if (!parser_->registeredBehaviorTrees().empty())
+  {
     std::cout << "WARNING: You executed BehaviorTreeFactory::createTreeFromFile "
                  "after registerBehaviorTreeFrom[File/Text].\n"
                  "This is NOTm probably, what you want to do.\n"
@@ -417,51 +418,51 @@ void BehaviorTreeFactory::addSubstitutionRule(StringView filter, SubstitutionRul
   substitution_rules_[std::string(filter)] = rule;
 }
 
-void BehaviorTreeFactory::loadSubstitutionRuleFromJSON(const std::string &json_text)
+void BehaviorTreeFactory::loadSubstitutionRuleFromJSON(const std::string& json_text)
 {
   auto const json = nlohmann::json::parse(json_text);
 
   std::unordered_map<std::string, TestNodeConfig> configs;
 
   auto test_configs = json.at("TestNodeConfigs");
-  for(auto const& [name, test_config]: test_configs.items())
+  for (auto const& [name, test_config] : test_configs.items())
   {
     auto& config = configs[name];
 
     auto status = test_config.at("return_status").get<std::string>();
     config.return_status = convertFromString<NodeStatus>(status);
-    if(test_config.contains("async_delay"))
+    if (test_config.contains("async_delay"))
     {
       config.async_delay =
           std::chrono::milliseconds(test_config["async_delay"].get<int>());
     }
-    if(test_config.contains("post_script"))
+    if (test_config.contains("post_script"))
     {
       config.post_script = test_config["post_script"].get<std::string>();
     }
   }
 
   auto substitutions = json.at("SubstitutionRules");
-  for(auto const& [node_name, test]: substitutions.items())
+  for (auto const& [node_name, test] : substitutions.items())
   {
     auto test_name = test.get<std::string>();
     auto it = configs.find(test_name);
-    if(it == configs.end())
+    if (it == configs.end())
     {
       addSubstitutionRule(node_name, test_name);
     }
-    else {
+    else
+    {
       addSubstitutionRule(node_name, it->second);
     }
   }
 }
 
-const std::unordered_map<std::string, BehaviorTreeFactory::SubstitutionRule> &
+const std::unordered_map<std::string, BehaviorTreeFactory::SubstitutionRule>&
 BehaviorTreeFactory::substitutionRules() const
 {
   return substitution_rules_;
 }
-
 
 void Tree::initialize()
 {
@@ -492,6 +493,7 @@ void Tree::sleep(std::chrono::system_clock::duration timeout)
 
 Tree::~Tree()
 {
+  std::cout << " DEBUG ::: TREE DESTRUCTOR -- also calls haltTree() " << std::endl;
   haltTree();
 }
 
@@ -537,8 +539,9 @@ void Tree::applyVisitor(const std::function<void(TreeNode*)>& visitor)
   }
 }
 
-uint16_t Tree::getUID() {
-  auto uid =  ++uid_counter_;
+uint16_t Tree::getUID()
+{
+  auto uid = ++uid_counter_;
   return uid;
 }
 
@@ -563,9 +566,8 @@ NodeStatus Tree::tickRoot(TickOption opt, std::chrono::milliseconds sleep_time)
 
     // Inner loop. The previous tick might have triggered the wake-up
     // in this case, unless TickOption::EXACTLY_ONCE, we tick again
-    while( opt != TickOption::EXACTLY_ONCE &&
-           status == NodeStatus::RUNNING &&
-           wake_up_->waitFor(std::chrono::milliseconds(0)) )
+    while (opt != TickOption::EXACTLY_ONCE && status == NodeStatus::RUNNING &&
+           wake_up_->waitFor(std::chrono::milliseconds(0)))
     {
       status = rootNode()->executeTick();
     }
