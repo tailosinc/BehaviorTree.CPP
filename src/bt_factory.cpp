@@ -480,6 +480,8 @@ TreeNode* Tree::rootNode() const
 {
   if (subtrees.empty())
   {
+    std::cout << " ADDT ||||||||||| Subtrees empty -> return nullptr in rootNode()"
+              << std::endl;
     return nullptr;
   }
   auto& subtree_nodes = subtrees.front()->nodes;

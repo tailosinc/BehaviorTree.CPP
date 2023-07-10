@@ -40,8 +40,12 @@ void applyRecursiveVisitor(const TreeNode* node,
 
 void applyRecursiveVisitor(TreeNode* node, const std::function<void(TreeNode*)>& visitor)
 {
+  std::cout << "ADDT |||||||| applyRecursiveVisitor() BEGIN" << std::endl;
   if (!node)
   {
+    std::cout << "ADDT |||||||| applyRecursiveVisitor() One of the children of a "
+                 "DecoratorNode or ControlNode is nullptr"
+              << std::endl;
     throw LogicError("One of the children of a DecoratorNode or ControlNode is nullptr");
   }
 
@@ -49,6 +53,7 @@ void applyRecursiveVisitor(TreeNode* node, const std::function<void(TreeNode*)>&
 
   if (auto control = dynamic_cast<BT::ControlNode*>(node))
   {
+    std::cout << "ADDT |||||||| applyRecursiveVisitor() IS CONTROL NODE" << std::endl;
     for (const auto& child : control->children())
     {
       applyRecursiveVisitor(child, visitor);
@@ -56,11 +61,13 @@ void applyRecursiveVisitor(TreeNode* node, const std::function<void(TreeNode*)>&
   }
   else if (auto decorator = dynamic_cast<BT::DecoratorNode*>(node))
   {
+    std::cout << "ADDT |||||||| applyRecursiveVisitor() IS DECORATOR NODE" << std::endl;
     if (decorator->child())
     {
       applyRecursiveVisitor(decorator->child(), visitor);
     }
   }
+  std::cout << "ADDT |||||||| applyRecursiveVisitor() END" << std::endl;
 }
 
 void printTreeRecursively(const TreeNode* root_node, std::ostream& stream)

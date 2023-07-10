@@ -132,6 +132,7 @@ public:
     // the halt should propagate to all the node if the nodes
     // have been implemented correctly
     rootNode()->haltNode();
+    std::cout << " haltTree : AFTER HALTNODE" << std::endl;
 
     //but, just in case.... this should be no-op
     auto visitor = [](BT::TreeNode* node) { node->haltNode(); };
